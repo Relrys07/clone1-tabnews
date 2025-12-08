@@ -6,8 +6,10 @@ Interface Streamlit com análise estatística baseada em Fibonacci, números pri
 
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 from core import GeradorLoteria
 from config import LOTTERY_CONFIG
+from pdf_generator import PDFGenerator
 
 
 @st.cache_data
@@ -26,7 +28,7 @@ def apply_custom_style() -> None:
         <style>
         /* Fundo e Fontes */
         .stApp {
-            background-color: #0E1117;
+            background: linear-gradient(135deg, #0E1117 0%, #1a1f2e 100%);
             color: #FAFAFA;
         }
         
@@ -38,49 +40,82 @@ def apply_custom_style() -> None:
             padding: 12px 24px;
             font-size: 18px;
             font-weight: bold;
-            border-radius: 8px;
+            border-radius: 12px;
             transition: all 0.3s ease;
             box-shadow: 0px 4px 15px rgba(0, 200, 83, 0.4);
             width: 100%;
+            cursor: pointer;
         }
         div.stButton > button:hover {
-            transform: scale(1.02);
-            box-shadow: 0px 6px 20px rgba(0, 200, 83, 0.6);
+            transform: translateY(-2px);
+            box-shadow: 0px 8px 25px rgba(0, 200, 83, 0.8);
+            background: linear-gradient(90deg, #00B84D 0%, #5FC614 100%);
         }
 
         /* Cartões de Jogos */
         .game-card {
-            background-color: #262730;
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
             padding: 20px;
-            border-radius: 10px;
-            border-left: 5px solid #00C853;
+            border-radius: 15px;
+            border-left: 6px solid #00C853;
             margin-bottom: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 200, 83, 0.2);
+        }
+        
+        .game-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 200, 83, 0.3);
+            border-left-color: #64DD17;
         }
 
         /* Bolinhas de Loteria */
         .ball {
             display: inline-block;
-            width: 35px;
-            height: 35px;
-            line-height: 35px;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
             border-radius: 50%;
             text-align: center;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 13px;
             color: white;
-            margin-right: 5px;
-            box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3);
+            margin-right: 6px;
+            margin-bottom: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            transition: all 0.2s ease;
         }
-        .mega { background-color: #209869; }
-        .loto { background-color: #930089; }
-        .quina { background-color: #26338C; }
+        
+        .ball:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+        
+        .mega { background: linear-gradient(135deg, #209869 0%, #1a7d54 100%); }
+        .loto { background: linear-gradient(135deg, #930089 0%, #6b0066 100%); }
+        .quina { background: linear-gradient(135deg, #26338C 0%, #1a2365 100%); }
         
         /* Texto de Análise */
         .analysis-text {
             color: #A6A6A6;
             font-size: 0.9em;
             margin-top: 10px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* Métrica personalizada */
+        .metric-card {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 200, 83, 0.2);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            border-color: rgba(0, 200, 83, 0.8);
+            box-shadow: 0 4px 12px rgba(0, 200, 83, 0.2);
         }
         </style>
     """,
@@ -206,15 +241,79 @@ if submit_button:
                     unsafe_allow_html=True,
                 )
 
-        # 3. EXPORTAÇÃO (DOWNLOAD)
         st.write("---")
-        csv = df.to_csv(index=False).encode("utf-8")
-        st.download_button(
-            label="📥 Baixar Jogos em CSV",
-            data=csv,
-            file_name=f'lotopro_{tipo_jogo.lower().replace("-", "_")}.csv',
-            mime="text/csv",
-        )
+
+        # 3. GRÁFICOS E ANÁLISE
+        st.subheader("📈 Análise Estatística")
+
+        col_chart1, col_chart2 = st.columns(2)
+
+        with col_chart1:
+            # Gráfico de distribuição de somas
+            fig_soma = px.histogram(
+                df,
+                x="soma",
+                nbins=15,
+                title="Distribuição de Somas",
+                labels={"soma": "Soma", "count": "Frequência"},
+            )
+            fig_soma.update_traces(marker_color="#00C853")
+            fig_soma.update_layout(
+                plot_bgcolor="#1f2937",
+                paper_bgcolor="#0E1117",
+                font=dict(color="#FAFAFA"),
+                hovermode="x unified",
+            )
+            st.plotly_chart(fig_soma, use_container_width=True)
+
+        with col_chart2:
+            # Gráfico de paridades
+            pares_impares_count = {
+                "Pares": df["pares"].mean(),
+                "Impares": df["impares"].mean(),
+            }
+            fig_parity = px.bar(
+                x=list(pares_impares_count.keys()),
+                y=list(pares_impares_count.values()),
+                title="Média de Pares vs Impares",
+                labels={"x": "Tipo", "y": "Média"},
+            )
+            fig_parity.update_traces(marker_color=["#00C853", "#FF6B6B"])
+            fig_parity.update_layout(
+                plot_bgcolor="#1f2937",
+                paper_bgcolor="#0E1117",
+                font=dict(color="#FAFAFA"),
+                showlegend=False,
+            )
+            st.plotly_chart(fig_parity, use_container_width=True)
+
+        st.write("---")
+
+        # 4. EXPORTAÇÃO (DOWNLOAD - CSV + PDF)
+        st.subheader("💾 Exportar Resultados")
+
+        col_csv, col_pdf = st.columns(2)
+
+        with col_csv:
+            csv = df.to_csv(index=False).encode("utf-8")
+            st.download_button(
+                label="📥 Baixar em CSV",
+                data=csv,
+                file_name=f'lotopro_{tipo_jogo.lower().replace("-", "_")}.csv',
+                mime="text/csv",
+                use_container_width=True,
+            )
+
+        with col_pdf:
+            pdf_generator = PDFGenerator(tipo_jogo)
+            pdf_bytes = pdf_generator.generate_report(resultados)
+            st.download_button(
+                label="📄 Baixar em PDF",
+                data=pdf_bytes,
+                file_name=f'lotopro_{tipo_jogo.lower().replace("-", "_")}.pdf',
+                mime="application/pdf",
+                use_container_width=True,
+            )
 
 else:
     # TELA INICIAL
