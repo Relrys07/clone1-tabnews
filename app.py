@@ -338,7 +338,7 @@ with st.sidebar:
         )
 
         submit_button = st.form_submit_button(
-            "🚀 GERAR PALPITES", use_container_width=True
+            "🚀 GERAR PALPITES", use_container_width=True, width="stretch"
         )
 
 # --- ÁREA PRINCIPAL ---
@@ -523,7 +523,7 @@ if submit_button:
                 showlegend=False,
                 margin=dict(l=50, r=50, t=50, b=50),
             )
-            st.plotly_chart(fig_soma, use_container_width=True)
+            st.plotly_chart(fig_soma, use_container_width=True, width="stretch")
 
         with col_chart2:
             # Gráfico de paridades
@@ -552,7 +552,7 @@ if submit_button:
                 yaxis_title="Média por Jogo",
                 margin=dict(l=50, r=50, t=50, b=50),
             )
-            st.plotly_chart(fig_parity, use_container_width=True)
+            st.plotly_chart(fig_parity, use_container_width=True, width="stretch")
 
         # 4. EXPORTAÇÃO (DOWNLOAD - CSV + PDF) - Premium
         st.markdown(
@@ -574,6 +574,7 @@ if submit_button:
                 file_name=f'lotopro_{tipo_jogo.lower().replace("-", "_")}.csv',
                 mime="text/csv",
                 use_container_width=True,
+                width="stretch",
             )
 
         with col_pdf:
@@ -585,6 +586,7 @@ if submit_button:
                 file_name=f'lotopro_{tipo_jogo.lower().replace("-", "_")}.pdf',
                 mime="application/pdf",
                 use_container_width=True,
+                width="stretch",
             )
 
 else:
