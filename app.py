@@ -6,7 +6,7 @@ Interface Streamlit com análise estatística baseada em Fibonacci, números pri
 
 import streamlit as st
 import pandas as pd
-from core import GeradorLoteria, GameResult
+from core import GeradorLoteria
 from config import LOTTERY_CONFIG
 
 
@@ -21,7 +21,8 @@ def get_gerador() -> GeradorLoteria:
 
 def apply_custom_style() -> None:
     """Aplicar estilos CSS personalizados ao app."""
-    st.markdown("""
+    st.markdown(
+        """
         <style>
         /* Fundo e Fontes */
         .stApp {
@@ -82,7 +83,10 @@ def apply_custom_style() -> None:
             margin-top: 10px;
         }
         </style>
-    """, unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
+
 
 # ==============================================================================
 # INTERFACE DO DASHBOARD
@@ -105,26 +109,30 @@ gerador = get_gerador()
 
 with st.sidebar:
     st.header("⚙️ Configurações")
-    
+
     with st.form("lottery_config"):
         tipo_jogo = st.selectbox(
             "Selecione a Loteria:",
             list(LOTTERY_CONFIG.keys()),
-            help="Escolha o tipo de loteria para gerar palpites."
+            help="Escolha o tipo de loteria para gerar palpites.",
         )
-        
+
         qtd_jogos = st.slider(
             "Quantidade de Jogos:",
             min_value=1,
             max_value=50,
             value=5,
-            help="Número de palpites a gerar (máx: 50)."
+            help="Número de palpites a gerar (máx: 50).",
         )
-        
+
         st.markdown("---")
-        st.info("✨ Análise otimizada com Fibonacci, números primos e balanceamento de paridades.")
-        
-        submit_button = st.form_submit_button("🚀 GERAR PALPITES", use_container_width=True)
+        st.info(
+            "✨ Análise otimizada com Fibonacci, números primos e balanceamento de paridades."
+        )
+
+        submit_button = st.form_submit_button(
+            "🚀 GERAR PALPITES", use_container_width=True
+        )
 
 # --- ÁREA PRINCIPAL ---
 if submit_button:
@@ -138,24 +146,24 @@ if submit_button:
     if resultados:
         # 1. MÉTRICAS (KPIs)
         st.subheader("📊 Resumo do Lote")
-        
+
         # Converter GameResult para dicts
         resultados_dicts = [r.to_dict() for r in resultados]
         df = pd.DataFrame(resultados_dicts)
-        
+
         kpi1, kpi2, kpi3, kpi4 = st.columns(4)
-        
+
         with kpi1:
             st.metric(label="Jogos Gerados", value=len(resultados))
         with kpi2:
-            media_soma = int(df['soma'].mean())
+            media_soma = int(df["soma"].mean())
             st.metric(label="Média da Soma", value=media_soma)
         with kpi3:
-            if 'primos' in df.columns and df['primos'].notna().any():
-                media_primos = round(df['primos'].mean(), 1)
+            if "primos" in df.columns and df["primos"].notna().any():
+                media_primos = round(df["primos"].mean(), 1)
                 st.metric(label="Média de Primos", value=media_primos)
             else:
-                media_pares = round(df['pares'].mean(), 1)
+                media_pares = round(df["pares"].mean(), 1)
                 st.metric(label="Média de Pares", value=media_pares)
         with kpi4:
             st.success("✅ Análise Concluída")
@@ -164,48 +172,58 @@ if submit_button:
 
         # 2. EXIBIÇÃO DOS CARTÕES (VISUAL)
         st.subheader("🍀 Seus Palpites")
-        
-        css_class = "mega" if tipo_jogo == "Mega-Sena" else "loto" if tipo_jogo == "Lotofácil" else "quina"
+
+        css_class = (
+            "mega"
+            if tipo_jogo == "Mega-Sena"
+            else "loto" if tipo_jogo == "Lotofácil" else "quina"
+        )
         row1 = st.columns(2)
-        
+
         for i, resultado in enumerate(resultados):
             col = row1[i % 2]
-            
+
             with col:
                 html_balls = "".join(
                     f"<span class='ball {css_class}'>{num:02d}</span>"
                     for num in resultado.numeros
                 )
-                
+
                 analise_str = f"Soma: {resultado.soma}"
                 if resultado.primos:
                     analise_str += f" | Primos: {resultado.primos}"
                 if resultado.fibo:
                     analise_str += f" | Fibonacci: {resultado.fibo}"
-                
-                st.markdown(f"""
+
+                st.markdown(
+                    f"""
                     <div class="game-card">
                         <div style="margin-bottom: 10px; font-weight:bold; color:#00C853;">JOGO #{i+1}</div>
                         <div>{html_balls}</div>
                         <div class="analysis-text">🔍 {analise_str}</div>
                     </div>
-                """, unsafe_allow_html=True)
+                """,
+                    unsafe_allow_html=True,
+                )
 
         # 3. EXPORTAÇÃO (DOWNLOAD)
         st.write("---")
-        csv = df.to_csv(index=False).encode('utf-8')
+        csv = df.to_csv(index=False).encode("utf-8")
         st.download_button(
             label="📥 Baixar Jogos em CSV",
             data=csv,
             file_name=f'lotopro_{tipo_jogo.lower().replace("-", "_")}.csv',
-            mime='text/csv',
+            mime="text/csv",
         )
 
 else:
     # TELA INICIAL
-    st.markdown("""
+    st.markdown(
+        """
         <div style="text-align: center; padding: 50px; opacity: 0.7;">
             <h3>👈 Configure seu jogo no menu lateral</h3>
             <p>Selecione a loteria e a quantidade de palpites para começar a análise.</p>
         </div>
-    """, unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )

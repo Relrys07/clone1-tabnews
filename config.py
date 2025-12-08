@@ -3,7 +3,30 @@ Configurações e constantes da aplicação LotoPro.
 """
 
 # Constantes de números primos (até 80)
-PRIMOS = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79}
+PRIMOS = {
+    2,
+    3,
+    5,
+    7,
+    11,
+    13,
+    17,
+    19,
+    23,
+    29,
+    31,
+    37,
+    41,
+    43,
+    47,
+    53,
+    59,
+    61,
+    67,
+    71,
+    73,
+    79,
+}
 
 # Constantes de sequência de Fibonacci (até 80)
 FIBONACCI = {1, 2, 3, 5, 8, 13, 21, 34, 55}
