@@ -2,6 +2,8 @@ import streamlit as st
 import random
 import pandas as pd
 import time
+from dataclasses import dataclass
+from typing import List, Optional
 
 # ==============================================================================
 # 1. ESTILIZAÇÃO CSS (DESIGN PROFISSIONAL)
@@ -252,3 +254,13 @@ else:
             <p>Selecione a loteria e a quantidade de palpites para começar a análise de IA.</p>
         </div>
     """, unsafe_allow_html=True)
+
+@dataclass
+class GameResult:
+    numeros: List[int]
+    soma: int
+    pares: int
+    impares: int
+    tipo: str
+    primos: Optional[int] = None
+    fibo: Optional[int] = None
