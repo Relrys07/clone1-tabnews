@@ -458,8 +458,17 @@ if submit_button:
             score = scores[i] if i < len(scores) else 0
 
             with col:
+                # Definir gradiente de cor baseado na loteria
+                if css_class == "mega":
+                    ball_gradient = "linear-gradient(135deg, #10B981 0%, #059669 100%)"
+                elif css_class == "loto":
+                    ball_gradient = "linear-gradient(135deg, #A855F7 0%, #9333EA 100%)"
+                else:  # quina
+                    ball_gradient = "linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)"
+
+                # Bolinhas com estilos inline 100%
                 html_balls = "".join(
-                    f"<span class='ball {css_class}'>{num:02d}</span>"
+                    f"<span style='display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%; font-weight: 800; font-size: 14px; color: white; margin-right: 8px; margin-bottom: 8px; background: {ball_gradient}; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); border: 2px solid rgba(255, 255, 255, 0.2);'>{num:02d}</span>"
                     for num in resultado.numeros
                 )
 
@@ -469,12 +478,9 @@ if submit_button:
                 if resultado.fibo:
                     analise_str += f" | <b>Fibonacci:</b> {resultado.fibo}"
 
-                # Adicionar destaque para melhor palpite
-                card_class = "game-card-best" if is_melhor else "game-card"
-                
-                # Estilos inline para garantir renderização
+                # Estilos inline para o card
                 card_style = (
-                    "background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 165, 0, 0.08) 100%); border: 2px solid rgba(255, 215, 0, 0.6); box-shadow: 0 0 30px rgba(255, 215, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.3); animation: pulse-glow 2s ease-in-out infinite;"
+                    "background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 165, 0, 0.08) 100%); border: 2px solid rgba(255, 215, 0, 0.6); box-shadow: 0 0 30px rgba(255, 215, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.3);"
                     if is_melhor
                     else "background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(79, 70, 229, 0.04) 100%); border: 1px solid rgba(99, 102, 241, 0.3); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);"
                 )
@@ -485,7 +491,7 @@ if submit_button:
                     else ""
                 )
 
-                html_content = f"""<div style="padding: 24px; border-radius: 16px; margin-bottom: 16px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); backdrop-filter: blur(10px); position: relative; overflow: hidden; {card_style}">
+                html_content = f"""<div style="padding: 24px; border-radius: 16px; margin-bottom: 16px; backdrop-filter: blur(10px); position: relative; overflow: hidden; {card_style}">
                     {score_badge}
                     <div style="color: #6366F1; font-weight: 700; font-size: 14px; letter-spacing: 1px; margin-bottom: 12px; text-transform: uppercase;">🎯 Jogo #{i+1}</div>
                     <div style="margin-bottom: 16px;">
