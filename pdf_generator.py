@@ -99,7 +99,7 @@ class PDFGenerator:
         self._add_header()
 
         # Resumo
-        self._add_section_title("📊 Resumo")
+        self._add_section_title("Resumo Estatistico")
         self.pdf.set_font("Helvetica", "", 10)
         self.pdf.set_text_color(50, 50, 50)
         self.pdf.cell(0, 6, f"Total de Palpites: {len(games)}", ln=True)
@@ -116,7 +116,7 @@ class PDFGenerator:
         self.pdf.ln(5)
 
         # Palpites
-        self._add_section_title("🍀 Palpites Gerados")
+        self._add_section_title("Palpites Gerados")
         for i, game in enumerate(games, 1):
             self._add_game_card(game, i)
 
@@ -132,4 +132,4 @@ class PDFGenerator:
             align="C",
         )
 
-        return self.pdf.output()
+        return bytes(self.pdf.output())
