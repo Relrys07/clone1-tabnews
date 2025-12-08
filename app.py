@@ -471,19 +471,27 @@ if submit_button:
 
                 # Adicionar destaque para melhor palpite
                 card_class = "game-card-best" if is_melhor else "game-card"
+                
+                # Estilos inline para garantir renderização
+                card_style = (
+                    "background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 165, 0, 0.08) 100%); border: 2px solid rgba(255, 215, 0, 0.6); box-shadow: 0 0 30px rgba(255, 215, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.3); animation: pulse-glow 2s ease-in-out infinite;"
+                    if is_melhor
+                    else "background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(79, 70, 229, 0.04) 100%); border: 1px solid rgba(99, 102, 241, 0.3); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);"
+                )
+                
                 score_badge = (
                     f"<div style='position: absolute; top: 12px; right: 12px; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #1a1f3a; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px;'>TOP {int(score)}%</div>"
                     if is_melhor
                     else ""
                 )
 
-                html_content = f"""<div class="{card_class}" style="position: relative;">
+                html_content = f"""<div style="padding: 24px; border-radius: 16px; margin-bottom: 16px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); backdrop-filter: blur(10px); position: relative; overflow: hidden; {card_style}">
                     {score_badge}
-                    <div class="game-card-title">🎯 Jogo #{i+1}</div>
+                    <div style="color: #6366F1; font-weight: 700; font-size: 14px; letter-spacing: 1px; margin-bottom: 12px; text-transform: uppercase;">🎯 Jogo #{i+1}</div>
                     <div style="margin-bottom: 16px;">
                         {html_balls}
                     </div>
-                    <div class="analysis-text">
+                    <div style="color: #94A3B8; font-size: 13px; margin-top: 12px; font-family: 'SF Mono', 'Monaco', 'Courier New', monospace; line-height: 1.6;">
                         {analise_str}
                     </div>
                 </div>"""
