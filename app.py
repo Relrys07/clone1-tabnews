@@ -477,21 +477,18 @@ if submit_button:
                     else ""
                 )
 
-                st.markdown(
-                    f"""
-                    <div class="{card_class}" style="position: relative;">
-                        {score_badge}
-                        <div class="game-card-title">🎯 Jogo #{i+1}</div>
-                        <div style="margin-bottom: 16px;">
-                            {html_balls}
-                        </div>
-                        <div class="analysis-text">
-                            {analise_str}
-                        </div>
+                html_content = f"""<div class="{card_class}" style="position: relative;">
+                    {score_badge}
+                    <div class="game-card-title">🎯 Jogo #{i+1}</div>
+                    <div style="margin-bottom: 16px;">
+                        {html_balls}
                     </div>
-                """,
-                    unsafe_allow_html=True,
-                )
+                    <div class="analysis-text">
+                        {analise_str}
+                    </div>
+                </div>"""
+
+                st.markdown(html_content, unsafe_allow_html=True)
 
         # 3. GRÁFICOS E ANÁLISE - Premium
         st.markdown(
