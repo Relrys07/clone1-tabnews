@@ -28,7 +28,8 @@ class PDFGenerator:
 
     def _setup_fonts(self) -> None:
         """Configurar fontes padrão."""
-        self.pdf.add_font("Arial", "", None)  # Usar fonte padrão
+        # Usar fonte padrão do FPDF sem add_font
+        pass
 
     def _add_header(self) -> None:
         """Adicionar cabeçalho do documento."""
