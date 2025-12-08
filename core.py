@@ -107,6 +107,41 @@ class AnalisadorEstatistico:
                 return True
         return False
 
+    @staticmethod
+    def calcular_score_probabilidade(game: "GameResult") -> float:
+        """
+        Calcular score de probabilidade para um jogo (0 a 100).
+
+        Args:
+            game: GameResult para analisar.
+
+        Returns:
+            Score de 0 a 100 indicando probabilidade relativa de acerto.
+        """
+        score = 50.0  # Base
+
+        # Bom balanço de pares/impares (+15)
+        if 2 <= game.pares <= 4:  # Para Mega-Sena (6 números)
+            score += 15
+
+        # Soma dentro de faixa otimizada (+10)
+        if 100 <= game.soma <= 250:
+            score += 10
+
+        # Presença de números primos é positiva (+5)
+        if game.primos is not None and game.primos >= 2:
+            score += 5
+
+        # Presença de fibonacci (+5)
+        if game.fibo is not None and game.fibo >= 1:
+            score += 5
+
+        # Sem sequências consecutivas é melhor (-10)
+        if AnalisadorEstatistico.tem_sequencia_consecutiva(game.numeros, 3):
+            score -= 10
+
+        return min(100, max(0, score))  # Clamp entre 0 e 100
+
 
 class GeradorLoteria:
     """Gerador de palpites otimizados para loterias."""

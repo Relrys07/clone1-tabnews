@@ -114,6 +114,35 @@ def apply_custom_style() -> None:
             border-color: rgba(99, 102, 241, 0.6);
         }
         
+        .game-card-best {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 165, 0, 0.08) 100%);
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            border: 2px solid rgba(255, 215, 0, 0.6);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 30px rgba(255, 215, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 50px rgba(255, 215, 0, 0.7), 0 15px 40px rgba(255, 215, 0, 0.2);
+            }
+        }
+        
+        .game-card-best:hover {
+            transform: translateY(-12px) scale(1.05);
+            box-shadow: 0 0 60px rgba(255, 215, 0, 0.8), 0 20px 60px rgba(255, 215, 0, 0.3);
+            border-color: rgba(255, 215, 0, 0.9);
+        }
+        
         .game-card-title {
             color: #6366F1;
             font-weight: 700;
@@ -348,7 +377,7 @@ if submit_button:
                 """,
                 unsafe_allow_html=True,
             )
-        
+
         with kpi2:
             media_soma = int(df["soma"].mean())
             st.markdown(
@@ -360,7 +389,7 @@ if submit_button:
                 """,
                 unsafe_allow_html=True,
             )
-        
+
         with kpi3:
             if "primos" in df.columns and df["primos"].notna().any():
                 media_primos = round(df["primos"].mean(), 1)
@@ -384,7 +413,7 @@ if submit_button:
                     """,
                     unsafe_allow_html=True,
                 )
-        
+
         with kpi4:
             st.markdown(
                 f"""
@@ -412,11 +441,21 @@ if submit_button:
             else "loto" if tipo_jogo == "Lotofácil" else "quina"
         )
 
+        # Calcular scores e encontrar melhor palpite
+        from core import AnalisadorEstatistico
+
+        scores = [
+            AnalisadorEstatistico.calcular_score_probabilidade(r) for r in resultados
+        ]
+        melhor_indice = scores.index(max(scores)) if scores else 0
+
         # Grid responsivo
         cols = st.columns(2, gap="large")
 
         for i, resultado in enumerate(resultados):
             col = cols[i % 2]
+            is_melhor = i == melhor_indice
+            score = scores[i] if i < len(scores) else 0
 
             with col:
                 html_balls = "".join(
@@ -430,9 +469,18 @@ if submit_button:
                 if resultado.fibo:
                     analise_str += f" | <b>Fibonacci:</b> {resultado.fibo}"
 
+                # Adicionar destaque para melhor palpite
+                card_class = "game-card-best" if is_melhor else "game-card"
+                score_badge = (
+                    f"<div style='position: absolute; top: 12px; right: 12px; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #1a1f3a; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px;'>TOP {int(score)}%</div>"
+                    if is_melhor
+                    else ""
+                )
+
                 st.markdown(
                     f"""
-                    <div class="game-card">
+                    <div class="{card_class}" style="position: relative;">
+                        {score_badge}
                         <div class="game-card-title">🎯 Jogo #{i+1}</div>
                         <div style="margin-bottom: 16px;">
                             {html_balls}
