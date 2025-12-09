@@ -484,6 +484,11 @@ if submit_button:
                 # Height is a safe guess; Streamlit will show a vertical scrollbar if content overflows.
                 components.html(html_content, height=180)
 
+                # Fallback textual representation (readable) to make sure numbers are
+                # always visible even if the HTML rendering fails in some browsers.
+                readable = " ".join(f"{n:02d}" for n in resultado.numeros)
+                st.markdown(f"**Números:** {readable}")
+
         # 3. GRÁFICOS E ANÁLISE - Premium
         st.markdown(
             """
@@ -517,7 +522,8 @@ if submit_button:
                 showlegend=False,
                 margin=dict(l=50, r=50, t=50, b=50),
             )
-            st.plotly_chart(fig_soma, use_container_width=True)
+            # Use new width API to avoid deprecation warnings
+            st.plotly_chart(fig_soma, width="stretch")
 
         with col_chart2:
             # Gráfico de paridades
@@ -546,7 +552,8 @@ if submit_button:
                 yaxis_title="Média por Jogo",
                 margin=dict(l=50, r=50, t=50, b=50),
             )
-            st.plotly_chart(fig_parity, use_container_width=True)
+            # Use new width API to avoid deprecation warnings
+            st.plotly_chart(fig_parity, width="stretch")
 
         # 4. EXPORTAÇÃO (DOWNLOAD - CSV + PDF) - Premium
         st.markdown(
