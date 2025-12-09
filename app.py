@@ -5,6 +5,7 @@ Interface Streamlit com análise estatística baseada em Fibonacci, números pri
 """
 
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 import plotly.express as px
 from core import GeradorLoteria
@@ -114,34 +115,9 @@ def apply_custom_style() -> None:
             border-color: rgba(99, 102, 241, 0.6);
         }
         
-        .game-card-best {
-            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 165, 0, 0.08) 100%);
-            padding: 24px;
-            border-radius: 16px;
-            margin-bottom: 16px;
-            border: 2px solid rgba(255, 215, 0, 0.6);
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.3);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(10px);
-            position: relative;
-            overflow: hidden;
-            animation: pulse-glow 2s ease-in-out infinite;
-        }
-        
-        @keyframes pulse-glow {
-            0%, 100% {
-                box-shadow: 0 0 30px rgba(255, 215, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.3);
-            }
-            50% {
-                box-shadow: 0 0 50px rgba(255, 215, 0, 0.7), 0 15px 40px rgba(255, 215, 0, 0.2);
-            }
-        }
-        
-        .game-card-best:hover {
-            transform: translateY(-12px) scale(1.05);
-            box-shadow: 0 0 60px rgba(255, 215, 0, 0.8), 0 20px 60px rgba(255, 215, 0, 0.3);
-            border-color: rgba(255, 215, 0, 0.9);
-        }
+        /* Removed the golden animated "best" card effect because it caused
+           inconsistent rendering in Streamlit for some users. We keep visuals
+           subtle and stable below when marking a best candidate. */
         
         .game-card-title {
             color: #6366F1;
@@ -337,9 +313,7 @@ with st.sidebar:
             "✨ Análise otimizada com Fibonacci, números primos e balanceamento de paridades."
         )
 
-        submit_button = st.form_submit_button(
-            "🚀 GERAR PALPITES", width="stretch"
-        )
+        submit_button = st.form_submit_button("🚀 GERAR PALPITES")
 
 # --- ÁREA PRINCIPAL ---
 if submit_button:
@@ -479,17 +453,21 @@ if submit_button:
                     analise_str += f" | <b>Fibonacci:</b> {resultado.fibo}"
 
                 # Estilos inline para o card
-                card_style = (
-                    "background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 165, 0, 0.08) 100%); border: 2px solid rgba(255, 215, 0, 0.6); box-shadow: 0 0 30px rgba(255, 215, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.3);"
-                    if is_melhor
-                    else "background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(79, 70, 229, 0.04) 100%); border: 1px solid rgba(99, 102, 241, 0.3); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);"
-                )
-                
-                score_badge = (
-                    f"<div style='position: absolute; top: 12px; right: 12px; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #1a1f3a; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px;'>TOP {int(score)}%</div>"
-                    if is_melhor
-                    else ""
-                )
+                # Se for o melhor palpite, aplicamos um destaque estático e sutil (sem animação)
+                if is_melhor:
+                    card_style = (
+                        "background: linear-gradient(135deg, rgba(255, 244, 220, 0.06) 0%, rgba(255, 244, 220, 0.03) 100%);"
+                        "border: 2px solid rgba(255, 215, 0, 0.7); box-shadow: 0 8px 28px rgba(255, 215, 0, 0.12), 0 10px 30px rgba(0,0,0,0.2);"
+                    )
+                    score_badge = (
+                        f"<div style='position:absolute; top:8px; right:8px; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color:#1a1f3a; padding:6px 10px; border-radius:16px; font-size:12px; font-weight:700;'>TOP {int(score)}%</div>"
+                    )
+                else:
+                    score_badge = ""
+                    card_style = (
+                        "background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(79, 70, 229, 0.04) 100%);"
+                        "border: 1px solid rgba(99, 102, 241, 0.3); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);"
+                    )
 
                 html_content = f"""<div style="padding: 24px; border-radius: 16px; margin-bottom: 16px; backdrop-filter: blur(10px); position: relative; overflow: hidden; {card_style}">
                     {score_badge}
@@ -502,7 +480,9 @@ if submit_button:
                     </div>
                 </div>"""
 
-                st.markdown(html_content, unsafe_allow_html=True)
+                # Use components.html — more reliable full-HTML rendering inside columns
+                # Height is a safe guess; Streamlit will show a vertical scrollbar if content overflows.
+                components.html(html_content, height=180)
 
         # 3. GRÁFICOS E ANÁLISE - Premium
         st.markdown(
@@ -537,7 +517,7 @@ if submit_button:
                 showlegend=False,
                 margin=dict(l=50, r=50, t=50, b=50),
             )
-            st.plotly_chart(fig_soma, width="stretch")
+            st.plotly_chart(fig_soma, use_container_width=True)
 
         with col_chart2:
             # Gráfico de paridades
@@ -566,7 +546,7 @@ if submit_button:
                 yaxis_title="Média por Jogo",
                 margin=dict(l=50, r=50, t=50, b=50),
             )
-            st.plotly_chart(fig_parity, width="stretch")
+            st.plotly_chart(fig_parity, use_container_width=True)
 
         # 4. EXPORTAÇÃO (DOWNLOAD - CSV + PDF) - Premium
         st.markdown(
@@ -587,7 +567,6 @@ if submit_button:
                 data=csv,
                 file_name=f'lotopro_{tipo_jogo.lower().replace("-", "_")}.csv',
                 mime="text/csv",
-                width="stretch",
             )
 
         with col_pdf:
@@ -598,7 +577,6 @@ if submit_button:
                 data=pdf_bytes,
                 file_name=f'lotopro_{tipo_jogo.lower().replace("-", "_")}.pdf',
                 mime="application/pdf",
-                width="stretch",
             )
 
 else:
